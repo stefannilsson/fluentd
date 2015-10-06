@@ -18,7 +18,7 @@ module Fluent
   class SyslogInput < Input
     Plugin.register_input('syslog', self)
 
-    SYSLOG_REGEXP = /^\<([0-9]+)\>(.*)/
+    SYSLOG_REGEXP = /^([0-9]+ )?\<([0-9]+)\>(.*)/
 
     FACILITY_MAP = {
       0   => 'kern',
@@ -131,9 +131,10 @@ module Fluent
         log.warn "invalid syslog message: #{data.dump}"
         return
       end
-      pri = m[1].to_i
-      text = m[2]
-
+      msglen = m[1]
+      pri = m[2].to_i
+      text = m[3]
+      
       @parser.parse(text) { |time, record|
         unless time && record
           log.warn "pattern not match: #{text.inspect}"
